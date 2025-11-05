@@ -1,4 +1,5 @@
 {/* --- 4. JSX (The Form) --- */}
+import PublicLayout from '@/layouts/PublicLayout';
 <PublicLayout title="Reset Your Password - Shafqat Ali Academy">
     <div className="flex justify-center items-center py-12 px-4">
         <div className="max-w-md w-full bg-white p-8 shadow-xl rounded-lg">
