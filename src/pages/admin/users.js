@@ -4,7 +4,6 @@ import { useAuth } from '@/utils/context/AuthContext';
 import { toast } from 'react-toastify';
 
 // Layouts and Protection
-import AdminLayout from '@/layouts/AdminLayout'; // ✅ updated
 import AdminOnly from '@/components/auth/AdminOnly'; // ✅ updated
 
 // Helper
@@ -123,9 +122,9 @@ const ManageUsersPage = () => {
 const ProtectedManageUsersPage = () => {
     return (
         <AdminOnly> {/* ✅ updated wrapper */}
-            <AdminLayout> {/* ✅ updated layout */}
+             {/* ✅ updated layout */}
                 <ManageUsersPage />
-            </AdminLayout>
+          
         </AdminOnly>
     );
 };
