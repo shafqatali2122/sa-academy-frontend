@@ -4,8 +4,8 @@ import { useAuth } from '@/utils/context/AuthContext';
 import { toast } from 'react-toastify';
 
 // Layouts and Protection
-import DashboardLayout from '@/layouts/DashboardLayout';
-import AdminRoute from '@/components/auth/AdminRoute'; // Your protection wrapper
+import AdminLayout from '@/layouts/AdminLayout'; // ✅ updated
+import AdminOnly from '@/components/auth/AdminOnly'; // ✅ updated
 
 // Helper
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -39,7 +39,6 @@ const ManageUsersPage = () => {
             await axios.patch(`${API_URL}/users/${userId}/role`, { role: newRole }, config);
         },
         onSuccess: () => {
-            // If mutation is successful, refetch the users list to show the change
             queryClient.invalidateQueries(['adminUsers']);
             toast.success('User role updated successfully!');
         },
@@ -88,7 +87,6 @@ const ManageUsersPage = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    {/* Prevent Admin from changing their own role */}
                                     {member._id === user._id ? (
                                         <span className="text-gray-400">N/A (You)</span>
                                     ) : (
@@ -122,14 +120,13 @@ const ManageUsersPage = () => {
 };
 
 // --- 5. PAGE EXPORT WITH PROTECTION ---
-// This is how we combine everything.
 const ProtectedManageUsersPage = () => {
     return (
-        <AdminRoute> {/* 1. This page is protected by your Admin wrapper */}
-            <DashboardLayout> {/* 2. It lives inside your dashboard layout */}
-                <ManageUsersPage /> {/* 3. This is the page content */}
-            </DashboardLayout>
-        </AdminRoute>
+        <AdminOnly> {/* ✅ updated wrapper */}
+            <AdminLayout> {/* ✅ updated layout */}
+                <ManageUsersPage />
+            </AdminLayout>
+        </AdminOnly>
     );
 };
 
