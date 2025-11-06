@@ -5,6 +5,7 @@ import { useAuth } from '@/utils/context/AuthContext';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import { FaUserShield } from 'react-icons/fa';
+import Link from 'next/link'; // ✅ Added for navigation
 
 const AdminLoginPage = () => {
     const [email, setEmail] = useState('');
@@ -39,7 +40,6 @@ const AdminLoginPage = () => {
         }
     };
 
-    // If user is already logged in, show nothing or a loading spinner briefly
     if (user) return null; 
 
     return (
@@ -95,12 +95,29 @@ const AdminLoginPage = () => {
                         type="submit"
                         disabled={loading}
                         className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                            loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                            loading
+                                ? 'bg-blue-400 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
                         }`}
                     >
                         {loading ? 'Logging In...' : 'Sign In'}
                     </button>
                 </form>
+
+                {/* ✅ NEW CODE ADDED HERE */}
+                <div className="text-center mt-6">
+                    <p className="text-sm text-gray-600">
+                        Don’t have an account?{' '}
+                        <Link
+                            href="/register"
+                            className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
+                        >
+                            Sign up here
+                        </Link>
+                    </p>
+                </div>
+                {/* ✅ END OF NEW CODE */}
+
             </div>
         </div>
     );

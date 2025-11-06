@@ -1,4 +1,4 @@
-// frontend/src/pages/free-material.jsx (FULL CODE)
+// frontend/src/pages/free-material.jsx
 
 import PublicLayout from '@/layouts/PublicLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -8,11 +8,12 @@ import { useState } from 'react';
 import { FaDownload, FaLock, FaTags, FaSearch } from 'react-icons/fa';
 import { useAuth } from '@/utils/context/AuthContext';
 import SearchBar from '@/components/common/SearchBar';
+import Link from 'next/link'; // ✅ Added for login link
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const FreeMaterialPage = () => {
-    const { user } = useAuth(); // Check if user is logged in (for download gate)
+    const { user } = useAuth(); // ✅ Retained user detection
     const isAuthenticated = !!user;
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -35,30 +36,26 @@ const FreeMaterialPage = () => {
     const { data: materials, isLoading } = useQuery({
         queryKey: ['publishedMaterials'],
         queryFn: async () => {
-            // Backend handles filtering only published posts if no status parameter is sent
             const { data } = await axios.get(`${API_URL}/materials?status=published`);
             return data;
         },
     });
 
-    // 3. UPDATE: Download Mutation (Increments count and gets URL)
+    // 3. UPDATE: Download Mutation
     const downloadMutation = useMutation({
         mutationFn: async (materialId) => {
-            // Protected route that checks login status, increments count, and returns the file URL
             const { data } = await axios.post(`${API_URL}/materials/${materialId}/download`, {}, getConfig());
             return data.fileUrl;
         },
         onSuccess: (fileUrl) => {
             toast.success('Download starting...');
-            window.open(fileUrl, '_blank'); // Opens the file URL in a new tab
+            window.open(fileUrl, '_blank');
         },
         onError: () => {
-            // This error should only trigger if the token is invalid, but is a safeguard
             toast.error('Download failed. Please refresh and try logging in again.');
         },
     });
 
-    // 4. Client-side Filtering Logic
     const filteredMaterials = materials
         ?.filter(mat => {
             const matchesSearch = mat.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -66,7 +63,6 @@ const FreeMaterialPage = () => {
             return matchesSearch && matchesCategory;
         }) || [];
 
-    // --- Handlers ---
     const handleDownload = (mat) => {
         if (!isAuthenticated) {
             toast.warn('Please log in to your student account to download free resources.', { position: 'top-center' });
@@ -74,8 +70,6 @@ const FreeMaterialPage = () => {
         }
         downloadMutation.mutate(mat._id);
     };
-
-    // --- RENDERING ---
 
     return (
         <PublicLayout title="Free Material Library - Download Guides & E-books">
@@ -127,23 +121,25 @@ const FreeMaterialPage = () => {
                                     </span>
                                 </div>
                                 
-                                {/* Download Button */}
-                                <button 
-                                    onClick={() => handleDownload(mat)}
-                                    disabled={downloadMutation.isLoading}
-                                    className={`flex items-center px-4 py-2 rounded-lg text-white font-bold transition-colors shadow-lg ${isAuthenticated ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'}`}
-                                    title={isAuthenticated ? 'Click to Download' : 'Log in required to download'}
-                                >
+                                {/* ✅ Conditional Download/Login Button */}
+                                <div className="mt-2">
                                     {isAuthenticated ? (
-                                        <>
-                                            <FaDownload className="mr-2" /> Download
-                                        </>
+                                        <button 
+                                            onClick={() => handleDownload(mat)} 
+                                            disabled={downloadMutation.isLoading}
+                                            className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg"
+                                        >
+                                            <FaDownload className="mr-2" /> Download Now
+                                        </button>
                                     ) : (
-                                        <>
-                                            <FaLock className="mr-2" /> Login Required
-                                        </>
+                                        <Link 
+                                            href="/login"
+                                            className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg cursor-pointer"
+                                        >
+                                            <FaLock className="mr-2" /> Login to Download
+                                        </Link>
                                     )}
-                                </button>
+                                </div>
                             </div>
                         ))}
                     </div>
